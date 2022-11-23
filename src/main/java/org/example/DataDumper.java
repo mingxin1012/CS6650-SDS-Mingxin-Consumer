@@ -5,19 +5,24 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 
+import redis.clients.jedis.JedisPooled;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DataDumper implements Runnable{
-    private final ConcurrentHashMap<String, CopyOnWriteArrayList<String>> map;
     private final String queueName;
     private final RMQChannelPool rmqChannelPool;
-    public DataDumper(ConcurrentHashMap<String, CopyOnWriteArrayList<String>> map, String queueName, RMQChannelPool rmqChannelPool) {
-        this.map = map;
+    private final SkierDao skierDao;
+
+    public DataDumper(String queueName, RMQChannelPool rmqChannelPool
+                        ,SkierDao skierDao) {
         this.queueName = queueName;
         this.rmqChannelPool = rmqChannelPool;
+        this.skierDao = skierDao;
     }
 
     @Override
@@ -33,10 +38,10 @@ public class DataDumper implements Runnable{
             //channel.basicQos(1);
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                String[] info = message.split("/");
-                String skierID = info[7];
-                map.putIfAbsent(skierID, new CopyOnWriteArrayList<>());
-                map.get(skierID).add(message);
+
+                skierDao.createSkier(new Skier(message));
+                //map.putIfAbsent(skierID, new CopyOnWriteArrayList<>());
+                //map.get(skierID).add(message);
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
                 System.out.println(" [x] Received '" + message + "'");
             };

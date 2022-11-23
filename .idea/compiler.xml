@@ -6,10 +6,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="CS6650-SDS-Mingxin-Consumer" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="CS6650-SDS-Mingxin-Consumer" target="11" />
       <module name="RabbitMQConsumer" target="11" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="CS6650-SDS-Mingxin-Consumer" options="" />
+    </option>
   </component>
 </project>
